@@ -52,13 +52,14 @@
 	// });
 
 	class Player {
-		height = 32;
-		width = 32;
+		height = 256;
+		width = 256;
 
 		constructor() {
 			this.loaded = false;
 
-			this.sprites = ["./img/player/sprite_1.png", "./img/player/sprite_2.png"]
+			// this.sprites = ["./img/player/sprite_1.png", "./img/player/sprite_2.png"]
+			this.sprites = ["./img/truck/truck.png"]
 			this.stdframes = [];
 			this.leftframes = [];
 			this.frameindex = 0;
@@ -118,13 +119,14 @@
 		constructor () {
 			this.canvas = document.createElement("canvas");
 			this.canvas.id = "GameCanvas"
-			this.canvas.height = 32 * 10;
-			this.canvas.width = 32 * 10;
 
 			document.body.appendChild(this.canvas);
 
 			this.player = new Player();
 			this.playerpos = [0, 0];
+
+			this.canvas.height = this.player.height * 10;
+			this.canvas.width = this.player.width * 10;
 
 			this.ctx = this.canvas.getContext("2d");
 		}
@@ -147,7 +149,7 @@
 			var keyCode = e.keyCode;
 			if (keyCode >= 37 && keyCode <= 40) {
 				e.preventDefault();
-				this.ctx.clearRect(this.playerpos[0], this.playerpos[1], this.playerpos[0] + 32, this.playerpos[1] + 32);
+				this.ctx.clearRect(this.playerpos[0], this.playerpos[1], this.playerpos[0] + this.player.width, this.playerpos[1] + this.player.height);
 
 				var width = this.player.width;
 				var height = this.player.height;
