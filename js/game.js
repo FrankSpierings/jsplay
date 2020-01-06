@@ -27,13 +27,13 @@ function loadImage(src, flip) {
 }
 
 class Fire {
-	height = 32;
-	width = 32;
-
 	constructor() {
 		this.loaded = false;
 
 		this.sprites = ["./img/fire/fire_1.png", "./img/fire/fire_2.png"]
+		this.height = 32;
+		this.width = 32;
+
 		this.frames = [];
 		this.frameindex = 0;
 	}
@@ -70,13 +70,12 @@ class Fire {
 
 
 class Player {
-	height = 32;
-	width = 32;
-
 	constructor() {
 		this.loaded = false;
 
 		this.sprites = ["./img/player/sprite_1.png", "./img/player/sprite_2.png"]
+		this.height = 32;
+		this.width = 32;
 		this.stdframes = [];
 		this.leftframes = [];
 		this.frameindex = 0;
