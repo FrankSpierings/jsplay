@@ -72,6 +72,48 @@ class Fire {
 
 }
 
+class Tree {
+	constructor() {
+		this.loaded = false;
+
+		this.sprites = ["./img/tree/tree_1.png"];
+		this.height = 32;
+		this.width = 32;
+
+		this.frames = [];
+		this.frameindex = 0;
+	}
+
+	onload(cb) {
+		const self = this;
+
+
+		let frames = [];
+		for (let i = 0; i < self.sprites.length; i++) {				
+			frames.push(loadImage(self.sprites[i]));
+		}
+
+		//Chain stditems before leftitems, using another nested Promise.All.
+		Promise.all(frames).then(function (values) {
+			self.frames = values;
+			cb();
+		})
+	}
+
+
+	getframe() {
+		let frame = this.frames[this.frameindex];
+		if ((this.frameindex + 1) >= this.frames.length) {
+			this.frameindex = 0;
+		}
+		else {
+			this.frameindex += 1;
+		}
+		return frame;
+	}
+
+}
+
 
 class Player {
 	constructor() {
@@ -154,22 +196,43 @@ class Level {
 		this.itemcanvas = document.createElement("canvas");
 		this.itemcanvas.id = "items"
 
+		this.treecanvas = document.createElement("canvas");
+		this.treecanvas.id = "trees"
+
 		this.player = new Player();
 		this.playerpos = [0, 0];
 
 		this.fires = [
 			{
 				'position': [randInt(0,9), randInt(0,9)],
-				'obj': null
 			},
 			{
 				'position': [randInt(0,9), randInt(0,9)],
-				'obj': null
 			},
 			{
 				'position': [randInt(0,9), randInt(0,9)],
-				'obj': null	
 			}
+		];
+
+		this.trees = [
+			{
+				'position': [randInt(0,9), randInt(0,9)],
+			},
+			{
+				'position': [randInt(0,9), randInt(0,9)],
+			},
+			{
+				'position': [randInt(0,9), randInt(0,9)],
+			},
+			{
+				'position': [randInt(0,9), randInt(0,9)],
+			},
+			{
+				'position': [randInt(0,9), randInt(0,9)],
+			},
+			{
+				'position': [randInt(0,9), randInt(0,9)],
+			},
 		];
 
 		let levelheight = this.player.height * 10;
@@ -183,9 +246,13 @@ class Level {
 		this.playercanvas.width = levelwidht;
 		this.playercanvas.style = "z-index:2;position:absolute;left:0;top:0;zoom:200%";
 
+		this.treecanvas.height = levelheight;
+		this.treecanvas.width = levelwidht;
+		this.treecanvas.style = "z-index:3;position:absolute;left:0;top:0;zoom:200%";
+
 		this.itemcanvas.height = levelheight;
 		this.itemcanvas.width = levelwidht;
-		this.itemcanvas.style = "z-index:3;position:absolute;left:0;top:0;zoom:200%";
+		this.itemcanvas.style = "z-index:4;position:absolute;left:0;top:0;zoom:200%";
 
 		let ctx = this.bgcanvas.getContext("2d");
 		ctx.rect(0, 0, this.bgcanvas.height, this.bgcanvas.width);
@@ -235,6 +302,7 @@ class Level {
 		gamediv.appendChild(this.bgcanvas);
 		gamediv.appendChild(this.playercanvas);
 		gamediv.appendChild(this.itemcanvas);
+		gamediv.appendChild(this.treecanvas);
 		document.body.appendChild(gamediv);
 
 	}
@@ -249,6 +317,16 @@ class Level {
 				let pos = self.fires[i]['position'];
 				let img = fire.getframe();
 				ctx.drawImage(img, pos[0] * fire.height, pos[1] * fire.width);
+			})
+		}
+
+		for (let i=0; i<this.trees.length; i++) {			
+			let tree = new Tree();
+			self.trees[i]['obj'] = tree;
+			tree.onload(function () {
+				let pos = self.trees[i]['position'];
+				let img = tree.getframe();
+				self.treecanvas.getContext("2d").drawImage(img, pos[0] * tree.height, pos[1] * tree.width);
 			})
 		}
 	}
