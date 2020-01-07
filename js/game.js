@@ -137,6 +137,8 @@ class Player {
 
 class Level {
 	constructor () {
+		var self = this;
+
 		this.bgcanvas = document.createElement("canvas");
 		this.bgcanvas.id = "background"
 
@@ -154,24 +156,65 @@ class Level {
 
 		this.bgcanvas.height = levelheight;
 		this.bgcanvas.width = levelwidht;
-		this.bgcanvas.style = "z-index:1;position:absolute;left:0px;top:0px;zoom:200%";
+		this.bgcanvas.style = "z-index:1;position:absolute;left:0;top:0;zoom:200%";
 
 		this.playercanvas.height = levelheight;
 		this.playercanvas.width = levelwidht;
-		this.playercanvas.style = "z-index:2;position:absolute;left:0px;top:0px;zoom:200%";
+		this.playercanvas.style = "z-index:2;position:absolute;left:0;top:0;zoom:200%";
 
 		this.itemcanvas.height = levelheight;
 		this.itemcanvas.width = levelwidht;
-		this.itemcanvas.style = "z-index:3;position:absolute;left:0px;top:0px;zoom:200%";
+		this.itemcanvas.style = "z-index:3;position:absolute;left:0;top:0;zoom:200%";
 
 		let ctx = this.bgcanvas.getContext("2d");
 		ctx.rect(0, 0, this.bgcanvas.height, this.bgcanvas.width);
 		ctx.fillStyle = "gray";
 		ctx.fill();
 
-		document.body.appendChild(this.bgcanvas);
-		document.body.appendChild(this.playercanvas);
-		document.body.appendChild(this.itemcanvas);
+		let controldiv = document.createElement('div');
+		controldiv.style = "position: relative;";
+
+		this.buttonup = document.createElement("button");
+		this.buttonup.innerHTML = "⬆️";
+		this.buttonup.style = "font-size : 200%;"
+		this.buttonup.addEventListener("click", function() {
+		  self.playerUp();
+		});
+		controldiv.appendChild(this.buttonup);
+
+		this.buttonleft = document.createElement("button");
+		this.buttonleft.innerHTML = "⬅️";
+		this.buttonleft.style = "font-size : 200%;"
+		this.buttonleft.addEventListener("click", function() {
+		  self.playerLeft();
+		});
+		controldiv.appendChild(this.buttonleft);
+
+		this.buttonright = document.createElement("button");
+		this.buttonright.innerHTML = "➡️";
+		this.buttonright.style = "font-size : 200%;"
+		this.buttonright.addEventListener("click", function() {
+		  self.playerRight();
+		});
+		controldiv.appendChild(this.buttonright);
+
+		this.buttondown = document.createElement("button");
+		this.buttondown.innerHTML = "⬇️";
+		this.buttondown.style = "font-size : 200%;"
+		this.buttondown.addEventListener("click", function() {
+		  self.playerDown();
+		});
+		controldiv.appendChild(this.buttondown);
+
+		document.body.appendChild(controldiv);	
+		
+
+		let gamediv = document.createElement('div');
+		gamediv.style = "position: relative;";
+		gamediv.appendChild(this.bgcanvas);
+		gamediv.appendChild(this.playercanvas);
+		gamediv.appendChild(this.itemcanvas);
+		document.body.appendChild(gamediv);
 
 	}
 
@@ -205,7 +248,6 @@ class Level {
 				let ysize = y + self.fire.width
 				ctx.clearRect(4 * self.fire.height, self.fire.width, xsize, ysize);
 				ctx.drawImage(img, x, y);
-				console.log('here');
 			}, 400);
 		})
 
@@ -217,45 +259,75 @@ class Level {
 		let keyCode = e.keyCode;
 		if (keyCode >= 37 && keyCode <= 40) {		 	
 			e.preventDefault();
-			let ctx = this.playercanvas.getContext("2d");
-			ctx.clearRect(this.playerpos[0], this.playerpos[1], this.playerpos[0] + this.player.width, this.playerpos[1] + this.player.height);
 
 			if (keyCode == 38) {
-				// up
-				var newpos = [this.playerpos[0], this.playerpos[1] - this.player.height];
-				if (this.boundcheck(newpos)) {
-					this.playerpos = newpos;
-				}
-				this.player.up();
+				this.playerUp();
 			}
 			else if (keyCode == 40) {
-			    // down
-			    var newpos = [this.playerpos[0], (this.playerpos[1] + this.player.height)];
-			    if (this.boundcheck(newpos)) {
-			    	this.playerpos = newpos;
-			    }
-			    this.player.down();
+			    this.playerDown();
 			}
 			else if (keyCode == 37) {
-				// left
-			   	var newpos = [(this.playerpos[0] - this.player.width), this.playerpos[1]];
-			    if (this.boundcheck(newpos)) {
-			    	this.playerpos = newpos;
-			    }
-			    this.player.left();
+				this.playerLeft();
 			}
 			else if (keyCode == 39) {
 				// right
-			   	var newpos = [(this.playerpos[0] + this.player.width), this.playerpos[1]];
-			    if (this.boundcheck(newpos)) {
-			    	this.playerpos = newpos;
-			    }
-			    this.player.right();
-			}
-			ctx.drawImage(this.player.getframe(), this.playerpos[0], this.playerpos[1]);
+				this.playerRight();	
+			}			
 		    return false;
 		}
 	}
+
+	playerClear() {
+		let ctx = this.playercanvas.getContext("2d");
+		ctx.clearRect(this.playerpos[0], this.playerpos[1], this.playerpos[0] + this.player.width, this.playerpos[1] + this.player.height);
+	}
+
+	playerDraw(position) {
+		let ctx = this.playercanvas.getContext("2d");
+		ctx.drawImage(this.player.getframe(), this.playerpos[0], this.playerpos[1]);
+	}
+
+	playerUp() {
+		this.playerClear();
+		var newpos = [this.playerpos[0], this.playerpos[1] - this.player.height];
+		if (this.boundcheck(newpos)) {
+			this.playerpos = newpos;
+		}
+		this.player.up();
+		this.playerDraw();
+	}
+
+	playerDown() {
+		this.playerClear();
+		var newpos = [this.playerpos[0], (this.playerpos[1] + this.player.height)];
+		if (this.boundcheck(newpos)) {
+			this.playerpos = newpos;
+		}
+		this.player.down();
+		this.playerDraw();
+	}
+
+	playerLeft() {
+		this.playerClear();
+		var newpos = [(this.playerpos[0] - this.player.width), this.playerpos[1]];
+		if (this.boundcheck(newpos)) {
+			this.playerpos = newpos;
+		}
+		this.player.left();
+		this.playerDraw();
+	}
+
+	playerRight() {
+		this.playerClear();
+		var newpos = [(this.playerpos[0] + this.player.width), this.playerpos[1]];
+		 if (this.boundcheck(newpos)) {
+		 	this.playerpos = newpos;
+		 }
+		 this.player.right();
+		 this.playerDraw();
+	}
+
+
 
 	boundcheck(pos) {			
 		if ((pos[0] >= 0) && ((pos[0] + this.player.width) <= this.playercanvas.width) &&
