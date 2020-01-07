@@ -26,6 +26,10 @@ function loadImage(src, flip) {
 	});
 }
 
+function randInt(min, max) {
+  return Math.floor(Math.random() * (max - min + 1) ) + min;
+}
+
 class Fire {
 	constructor() {
 		this.loaded = false;
@@ -102,6 +106,8 @@ class Player {
 		}).then(function (values) {
 			self.leftframes = values;
 			self.framearray = self.stdframes;
+
+			self.loaded = true;
 			cb();
 		})
 	}
@@ -114,7 +120,7 @@ class Player {
 		else {
 			this.frameindex += 1;
 		}
-		console.debug("Frameindex: " + this.frameindex);
+		// console.debug("Frameindex: " + this.frameindex);
 		return frame;
 	}
 
@@ -150,6 +156,21 @@ class Level {
 
 		this.player = new Player();
 		this.playerpos = [0, 0];
+
+		this.fires = [
+			{
+				'position': [randInt(0,9), randInt(0,9)],
+				'obj': null
+			},
+			{
+				'position': [randInt(0,9), randInt(0,9)],
+				'obj': null
+			},
+			{
+				'position': [randInt(0,9), randInt(0,9)],
+				'obj': null	
+			}
+		];
 
 		let levelheight = this.player.height * 10;
 		let levelwidht = this.player.width * 10;
@@ -218,6 +239,32 @@ class Level {
 
 	}
 
+	drawItems() {
+		var self = this;
+		let ctx = self.itemcanvas.getContext("2d");
+		for (let i=0; i<this.fires.length; i++) {			
+			let fire = new Fire();
+			self.fires[i]['obj'] = fire;
+			fire.onload(function () {
+				let pos = self.fires[i]['position'];
+				let img = fire.getframe();
+				ctx.drawImage(img, pos[0] * fire.height, pos[1] * fire.width);
+			})
+		}
+	}
+
+	redrawItems() {
+		var self = this;
+		let ctx = self.itemcanvas.getContext("2d");
+		for (let i=0; i<this.fires.length; i++) {			
+			let fire = self.fires[i]['obj'];
+			let pos = self.fires[i]['position'];
+			let img = fire.getframe();
+			ctx.clearRect(pos[0] * fire.height, pos[1] * fire.width, (pos[0] * fire.height) + fire.height, (pos[1] * fire.width) + fire.width);
+			ctx.drawImage(img, pos[0] * fire.height, pos[1] * fire.width);
+		}
+	}
+
 	onload(cb) {
 		// Bind keyboard to movement
 		document.onkeydown = this.keydown.bind(this);
@@ -231,26 +278,13 @@ class Level {
 			ctx.drawImage(img, self.playerpos[0], self.playerpos[1]);
 		});
 
+		self.drawItems();
 
-		// Initialize flame(s)
-		this.fire = new Fire();
-		this.fire.onload(function () {
-			let img = self.fire.getframe();
-			let ctx = self.itemcanvas.getContext("2d");
-			ctx.drawImage(img, 4 * self.fire.height, 4 * self.fire.width);
+		setInterval(function () {
+			self.redrawItems();
+		}, 400);
 
-			setInterval(function () {
-				let img = self.fire.getframe();
-				let ctx = self.itemcanvas.getContext("2d");
-				let x = (4 * self.fire.height);
-				let y = (4 * self.fire.width);
-				let xsize = x + self.fire.height
-				let ysize = y + self.fire.width
-				ctx.clearRect(4 * self.fire.height, self.fire.width, xsize, ysize);
-				ctx.drawImage(img, x, y);
-			}, 400);
-		})
-
+		self.loaded = true;
 		cb();
 	}
 
@@ -333,12 +367,12 @@ class Level {
 		if ((pos[0] >= 0) && ((pos[0] + this.player.width) <= this.playercanvas.width) &&
 			(pos[1] >= 0) && ((pos[1] + this.player.height) <= this.playercanvas.height))
 		{
-			console.debug("boundcheck: " + pos + " - OK");
+			// console.debug("boundcheck: " + pos + " - OK");
 			return true;
 		}
 		else 
 		{
-			console.debug("boundcheck: " + pos + " - No way");
+			// console.debug("boundcheck: " + pos + " - No way");
 			return false;
 		}
 	}
